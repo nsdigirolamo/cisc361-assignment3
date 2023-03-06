@@ -70,7 +70,7 @@ int main (int argc, char *argv[]) {
 
                 display_execute_message("pwd");
                 char *ptr = getcwd(NULL, 0);
-                if (prt != NULL) {
+                if (ptr != NULL) {
                     printf("%s\n", ptr);
                 } else {
                     perror("[pwd] Error");
