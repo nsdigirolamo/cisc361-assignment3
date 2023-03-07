@@ -6,6 +6,7 @@ ODIR = objs
 OBJS += $(ODIR)/myshell.o
 
 CFLAGS = -I $(IDIR)
+LIBS =
 
 make: myshell
 
