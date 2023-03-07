@@ -4,6 +4,8 @@ IDIR = headers
 ODIR = objs
 
 OBJS += $(ODIR)/myshell.o
+OBJS += $(ODIR)/path.o
+OBJS += $(ODIR)/which.o
 
 CFLAGS = -I $(IDIR)
 LIBS =
