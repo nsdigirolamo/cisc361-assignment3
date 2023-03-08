@@ -16,6 +16,7 @@ A very simple shell program.
 #include <unistd.h>
 
 #include "cd.h"
+#include "kill.h"
 #include "list.h"
 #include "path.h"
 #include "pwd.h"
@@ -104,7 +105,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "kill") == 0) {
 
                 display_execute_message("kill");
-                // todo
+                my_kill(args, arg_count);
 
             } else if (strcmp(args[0], "prompt") == 0) {
 

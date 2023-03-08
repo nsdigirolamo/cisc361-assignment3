@@ -4,6 +4,7 @@ IDIR = headers
 ODIR = objs
 
 OBJS += $(ODIR)/cd.o
+OBJS += $(ODIR)/kill.o
 OBJS += $(ODIR)/list.o
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
