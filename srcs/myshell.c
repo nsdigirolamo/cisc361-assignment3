@@ -43,25 +43,6 @@ void display_prompt(char *prefix) {
     free(ptr);
 }
 
-char *get_prefix() {
-    char input[MAX_BUFFER_SIZE];
-    char *prefix;
-
-    fprintf(stdout, "Input new prompt prefix: ");
-
-    if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
-        perror("Input Error");
-        return NULL;
-    }
-
-    if (input[strlen(input) - 1] == '\n') {
-        input[strlen(input) - 1] = '\0';
-        prefix = malloc((strlen(input) + 1) * sizeof(char));
-        strcpy(prefix, input);
-        return prefix;
-    }
-}
-
 int main (int argc, char *argv[]) {
 
     char input[MAX_BUFFER_SIZE];
