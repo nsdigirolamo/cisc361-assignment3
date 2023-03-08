@@ -6,9 +6,7 @@ which.c
 Created for University of Delaware CISC361 - Operating Systems
 Assignment 3 - Simple Shell
 
-A simple which command. Returns the path to a command given its name as a char
-pointer. Returns NULL if the path is too long or the command was not found. The
-returned value must be freed to avoid memory leakage.
+A simple which command.
 
 */
 
