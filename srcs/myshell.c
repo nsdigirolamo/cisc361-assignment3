@@ -70,21 +70,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "cd") == 0) {
 
                 display_execute_message("cd");
-
-                if (arg_count == 1) {
-                    char *ptr = getenv("HOME");
-                    char *path = malloc((strlen(ptr) + 1) * sizeof(char));
-                    strcpy(path, ptr);
-                    if (chdir(path) == -1) {
-                        perror("[cd] Error");
-                    }
-                    free(path);
-                } else {
-                    char *path = args[1];
-                    if (chdir(path) == -1) {
-                        perror("[cd] Error");
-                    }
-                }
+                cd(args, arg_count);
 
             } else if (strcmp(args[0], "pwd") == 0) {
 
