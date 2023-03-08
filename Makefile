@@ -7,9 +7,10 @@ OBJS += $(ODIR)/cd.o
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
 OBJS += $(ODIR)/pwd.o
+OBJS += $(ODIR)/where.o
 OBJS += $(ODIR)/which.o
 
-CFLAGS = -I $(IDIR)
+CFLAGS = -I $(IDIR) -g
 LIBS =
 
 make: myshell

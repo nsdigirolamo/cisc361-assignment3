@@ -17,6 +17,7 @@ A very simple shell program.
 #include "cd.h"
 #include "path.h"
 #include "pwd.h"
+#include "where.h"
 #include "which.h"
 
 #define MAX_BUFFER_SIZE 128
@@ -66,6 +67,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "where") == 0) {
 
                 display_execute_message("where");
+                where(args, arg_count);
 
             } else if (strcmp(args[0], "cd") == 0) {
 
