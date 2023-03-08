@@ -38,6 +38,8 @@ void display_prompt(char *prefix) {
         printf("[%s] %s ", ptr, prefix);
     } else if (ptr != NULL) {
         printf("[%s] > ", ptr);
+    } else {
+        perror("[myshell] Error showing prompt");
     }
 
     free(ptr);
