@@ -16,6 +16,7 @@ A very simple shell program.
 #include <unistd.h>
 
 #include "cd.h"
+#include "list.h"
 #include "path.h"
 #include "pwd.h"
 #include "where.h"
@@ -48,12 +49,14 @@ int main (int argc, char *argv[]) {
                 token = strtok(NULL, " ");
             }
 
+            /*
             // Debugging args
             printf("\nArgument List:\n");
             for (int i = 0; i < arg_count; i++) {
                 printf("args[%d]: %s\n", i, args[i]);
             }
             printf("\n");
+            */
 
             if (strcmp(args[0], "exit") == 0) {
 
@@ -83,7 +86,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "list") == 0) {
 
                 display_execute_message("list");
-                // todo
+                list(args, arg_count);
 
             } else if (strcmp(args[0], "pid") == 0) {
 
