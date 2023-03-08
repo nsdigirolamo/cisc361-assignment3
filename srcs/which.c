@@ -18,8 +18,6 @@ A simple which command.
 #include "path.h"
 #include "which.h"
 
-#define PATH_LENGTH 128
-
 void which (char *args[], int arg_count) {
 
     if (arg_count < 2) {
@@ -28,33 +26,36 @@ void which (char *args[], int arg_count) {
     }
 
     char *name = args[1];
-    path_element *list = get_path();
-    path_element *current = list;
-
-    char command[PATH_LENGTH];
+    path_element *path = get_path();
+    path_element *current = path;
     bool found = false;
 
     while (current != NULL) {
-        int size = strlen(current->element) + strlen(name) + 1;
-        if (PATH_LENGTH < size) {
-            fprintf(stderr, "[which] Error: Max path length (128) exceeded.\n");
-            free_list(list);
-            return;
-        } else {
-            sprintf(command, "%s/%s", current->element, name);
-            if (access(command, X_OK) == 0) {
-                found = true;
-                break;
-            }
-            current = current->next;
+        // Final string will be "current->element" + '/' + "name" + '\0'
+        // So the length has to be the strings' lengths + 2
+        int length = strlen(current->element) + strlen(name) + 2;
+        char *command = malloc(length * sizeof(char));
+        strcpy(command, current->element);
+        strcat(command, "/");
+        strcat(command, name);
+
+        if (access(command, X_OK) == 0) {
+            found = true;
+            fprintf(stdout, "%s\n", command);
         }
+
+        free(command);
+
+        if (found) {
+            break;
+        }
+
+        current =  current->next;
     }
 
-    free_list(list);
+    free_list(path);
 
-    if (found) {
-        fprintf(stdout, "%s\n", command);
-    } else {
+    if (!found) {
         fprintf(stderr, "[which] Error: Command [%s] not found.\n", name);
     }
 }
