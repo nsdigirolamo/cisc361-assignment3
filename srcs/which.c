@@ -21,32 +21,41 @@ returned value must be freed to avoid memory leakage.
 
 #define PATH_LENGTH 128
 
-char *which (char *name, path_element *list) {
+void which (char *args[], int arg_count) {
+
+    if (arg_count < 2) {
+        fprintf(stderr, "[which] Error: Not enough arguments provided.\n");
+        return;
+    }
+
+    char *name = args[1];
+    path_element *list = get_path();
+    path_element *current = list;
 
     char command[PATH_LENGTH];
     bool found = false;
 
-    while (list != NULL) {
-        int size = strlen(list->element) + strlen(name);
-        if (PATH_LENGTH < size + 1) {
+    while (current != NULL) {
+        int size = strlen(current->element) + strlen(name) + 1;
+        if (PATH_LENGTH < size) {
             fprintf(stderr, "[which] Error: Max path length (128) exceeded.\n");
-            return (char *) NULL;
+            free_list(list);
+            return;
         } else {
-            sprintf(command, "%s/%s", list->element, name);
+            sprintf(command, "%s/%s", current->element, name);
             if (access(command, X_OK) == 0) {
                 found = true;
                 break;
             }
-            list = list->next;
+            current = current->next;
         }
     }
 
-    if (found) {
-        char *cmd = malloc((strlen(command) + 1) * sizeof(char));
-        strcpy(cmd, command);
-        return cmd;
-    }
+    free_list(list);
 
-    fprintf(stderr, "[which] Error: Command [%s] not found.\n", name);
-    return (char *) NULL;
+    if (found) {
+        fprintf(stdout, "%s\n", command);
+    } else {
+        fprintf(stderr, "[which] Error: Command [%s] not found.\n", name);
+    }
 }

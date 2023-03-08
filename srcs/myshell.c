@@ -61,17 +61,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "which") == 0) {
 
                 display_execute_message("which");
-                if (arg_count == 1) {
-                    fprintf(stderr, "[which] Error: No arguments provided.\n");
-                } else {
-                    path_element *list = get_path();
-                    char *path = which(args[1], list);
-                    if (path != NULL) {
-                        fprintf(stdout, "%s\n", path);
-                    }
-                    free_list(list);
-                    free(path);
-                }
+                which(args, arg_count);
 
             } else if (strcmp(args[0], "where") == 0) {
 

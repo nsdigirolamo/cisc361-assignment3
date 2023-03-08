@@ -13,6 +13,6 @@ Assignment 3 - Simple Shell
 #ifndef WHICH_H
 #define WHICH_H
 
-char *which (char *command, path_element *list);
+void which (char *args[], int arg_count);
 
 #endif
