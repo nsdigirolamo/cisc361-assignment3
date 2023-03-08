@@ -6,6 +6,7 @@ ODIR = objs
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
 OBJS += $(ODIR)/which.o
+OBJS += $(DIR)/cd.o
 
 CFLAGS = -I $(IDIR)
 LIBS =
