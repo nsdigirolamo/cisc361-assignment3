@@ -10,13 +10,13 @@ A very simple shell program.
 
 */
 
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
+#include "cd.h"
 #include "path.h"
+#include "pwd.h"
 #include "which.h"
 
 #define MAX_BUFFER_SIZE 128
@@ -75,13 +75,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "pwd") == 0) {
 
                 display_execute_message("pwd");
-                char *ptr = getcwd(NULL, 0);
-                if (ptr != NULL) {
-                    printf("%s\n", ptr);
-                } else {
-                    perror("[pwd] Error");
-                }
-                free(ptr);
+                pwd();
 
             } else if (strcmp(args[0], "list") == 0) {
 
