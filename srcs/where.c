@@ -19,12 +19,10 @@ A simple which command.
 #include "path.h"
 #include "where.h"
 
-#define PATH_LENGTH 128
-
 void where (char *args[], int arg_count) {
 
     if (arg_count < 2) {
-        fprintf(stderr, "[which] Error: Not enough arguments provided.\n");
+        fprintf(stderr, "[where] Error: Not enough arguments provided.\n");
         return;
     }
 
@@ -54,6 +52,6 @@ void where (char *args[], int arg_count) {
     free_list(path);
 
     if (!found) {
-        fprintf(stderr, "[which] Error: Command [%s] not found.\n", name);
+        fprintf(stderr, "[where] Error: Command [%s] not found.\n", name);
     }
 }
