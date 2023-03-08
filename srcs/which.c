@@ -12,11 +12,12 @@ returned value must be freed to avoid memory leakage.
 
 */
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
-#include <stdbool.h>
-
+#include "path.h"
 #include "which.h"
 
 #define PATH_LENGTH 128

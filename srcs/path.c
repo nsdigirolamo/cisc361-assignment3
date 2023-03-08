@@ -11,6 +11,8 @@ Parses the components of the PATH environment variable into a linked list.
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "path.h"
 

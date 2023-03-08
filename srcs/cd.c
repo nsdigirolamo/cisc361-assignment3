@@ -10,6 +10,11 @@ A simple cd command.
 
 */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "cd.h"
 
 void cd (char *args[], int arg_count) {

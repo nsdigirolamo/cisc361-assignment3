@@ -8,9 +8,6 @@ Assignment 3 - Simple Shell
 
 */
 
-#include <stdlib.h>
-#include <string.h>
-
 #ifndef GET_PATH_H
 #define GET_PATH_H
 
