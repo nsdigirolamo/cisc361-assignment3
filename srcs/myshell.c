@@ -29,12 +29,20 @@ void display_execute_message (const char *name) {
     fprintf(stdout, "Executing built-in [%s]\n", name);
 }
 
+void display_prompt() {
+    char *ptr = getcwd(NULL, 0);
+    if (ptr != NULL) {
+        printf("[%s] > ", ptr);
+    }
+    free(ptr);
+}
+
 int main (int argc, char *argv[]) {
 
     char input[MAX_BUFFER_SIZE];
     char *args[MAX_ARGS];
 
-    fprintf(stdout, "> ");
+    display_prompt();
 
     while (fgets(input, MAX_BUFFER_SIZE, stdin) != NULL) {
         if (input[strlen(input) - 1] == '\n') {
@@ -119,6 +127,6 @@ int main (int argc, char *argv[]) {
             }
         }
 
-        fprintf(stdout, "> ");
+        display_prompt();
     }
 }
