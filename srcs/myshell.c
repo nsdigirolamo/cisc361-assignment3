@@ -13,6 +13,7 @@ A very simple shell program.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "cd.h"
 #include "path.h"
@@ -87,7 +88,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "pid") == 0) {
 
                 display_execute_message("pid");
-                // todo
+                fprintf(stdout, "%d\n", getpid());
 
             } else if (strcmp(args[0], "kill") == 0) {
 
