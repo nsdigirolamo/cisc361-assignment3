@@ -12,7 +12,7 @@ OBJS += $(ODIR)/pwd.o
 OBJS += $(ODIR)/where.o
 OBJS += $(ODIR)/which.o
 
-CFLAGS = -I $(IDIR) -g
+CFLAGS = -I $(IDIR) -ggdb3
 LIBS =
 
 make: myshell

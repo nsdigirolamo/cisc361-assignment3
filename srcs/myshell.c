@@ -30,20 +30,46 @@ void display_execute_message (const char *name) {
     fprintf(stdout, "Executing built-in [%s]\n", name);
 }
 
-void display_prompt() {
+void display_prompt(char *prefix) {
+
     char *ptr = getcwd(NULL, 0);
-    if (ptr != NULL) {
+
+    if (ptr != NULL && prefix != NULL) {
+        printf("[%s] %s ", ptr, prefix);
+    } else if (ptr != NULL) {
         printf("[%s] > ", ptr);
     }
+
     free(ptr);
+}
+
+char *get_prefix() {
+    char input[MAX_BUFFER_SIZE];
+    char *prefix;
+
+    fprintf(stdout, "Input new prompt prefix: ");
+
+    if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
+        perror("Input Error");
+        return NULL;
+    }
+
+    if (input[strlen(input) - 1] == '\n') {
+        input[strlen(input) - 1] = '\0';
+        prefix = malloc((strlen(input) + 1) * sizeof(char));
+        strcpy(prefix, input);
+        return prefix;
+    }
 }
 
 int main (int argc, char *argv[]) {
 
     char input[MAX_BUFFER_SIZE];
     char *args[MAX_ARGS];
-
-    display_prompt();
+    // prefix can be initialized to NULL because display_prompt() checks if it
+    // is NULL and will adjust the prompt output accordingly.
+    char *prefix = NULL;
+    display_prompt(prefix);
 
     while (fgets(input, MAX_BUFFER_SIZE, stdin) != NULL) {
         if (input[strlen(input) - 1] == '\n') {
@@ -70,6 +96,7 @@ int main (int argc, char *argv[]) {
             if (strcmp(args[0], "exit") == 0) {
 
                 display_execute_message("exit");
+                free(prefix);
                 exit(0);
 
             } else if (strcmp(args[0], "which") == 0) {
@@ -110,7 +137,27 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "prompt") == 0) {
 
                 display_execute_message("prompt");
-                // todo
+
+                if (arg_count < 2) {
+
+                    fprintf(stdout, "Input new prompt prefix: ");
+
+                    if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
+                        perror("Input Error");
+                    } else if (input[strlen(input) - 1] == '\n') {
+                        input[strlen(input) - 1] = '\0';
+                        free(prefix);
+                        prefix = malloc((strlen(input) + 1) * sizeof(char));
+                        strcpy(prefix, input);
+                    }
+
+                } else {
+
+                    free(prefix);
+                    prefix = malloc((strlen(args[1]) + 1) * sizeof(char));
+                    strcpy(prefix, args[1]);
+
+                }
 
             } else if (strcmp(args[0], "printenv") == 0) {
 
@@ -128,6 +175,6 @@ int main (int argc, char *argv[]) {
             }
         }
 
-        display_prompt();
+        display_prompt(prefix);
     }
 }
