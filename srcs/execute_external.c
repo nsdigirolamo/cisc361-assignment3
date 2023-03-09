@@ -37,7 +37,9 @@ void execute_external (char *args[], int arg_count) {
 
         exec_args[arg_count] = NULL;
 
-        execve(args[0], exec_args, environ);
+        if (execve(args[0], exec_args, environ) == -1) {
+            perror("[myshell] Error");
+        }
 
     } else {
 
