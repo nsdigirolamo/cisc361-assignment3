@@ -21,6 +21,7 @@ A very simple shell program.
 #include "path.h"
 #include "printenv.h"
 #include "pwd.h"
+#include "setenv.h"
 #include "where.h"
 #include "which.h"
 
@@ -151,7 +152,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "setenv") == 0) {
 
                 display_execute_message("setenv");
-                // todo
+                my_setenv(args, arg_count);
 
             } else {
                 // check if the user has given the absolute path to an executable

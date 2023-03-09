@@ -6,9 +6,13 @@ printenv.c
 Created for University of Delaware CISC361 - Operating Systems
 Assignment 3 - Simple Shell
 
+A simple printenv command.
+
 */
 
 #include <stdio.h>
+
+#include "printenv.h"
 
 extern char **environ;
 
