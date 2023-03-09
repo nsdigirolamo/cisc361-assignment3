@@ -31,11 +31,11 @@ A very simple shell program.
 #define MAX_ARGS 16
 
 void built_in_cmd_message (const char *name) {
-    fprintf(stderr, "Executing built-in [ %s ]\n", name);
+    fprintf(stdout, "[myshell] Executing built-in '%s'.\n", name);
 }
 
 void not_built_in_cmd_message (const char *name) {
-    fprintf(stderr, "Executing external [ %s ]\n", name);
+    fprintf(stdout, "[myshell] Executing external '%s'.\n", name);
 }
 
 void display_prompt(char *prefix) {
@@ -183,10 +183,38 @@ int main (int argc, char *argv[]) {
             if (access(args[0], X_OK) == 0) {
                 not_built_in_cmd_message(args[0]);
                 execute_external(args, arg_count);
-            } else {
+            } 
 
+        } else {
+
+            char *name = args[0];
+
+            path_element *path = get_path();
+            path_element *current = path;
+            bool found = false;
+
+            while (current != NULL) {
+                // Final string will be "current->element" + '/' + "name" + '\0'
+                // So the length has to be the strings' lengths + 2
+                int length = strlen(current->element) + strlen(name) + 2;
+                char *command = malloc(length * sizeof(char));
+                strcpy(command, current->element);
+                strcat(command, "/");
+                strcat(command, name);
+                if (access(command, X_OK) == 0) {
+                    found = true;
+                    args[0] = command;
+                    not_built_in_cmd_message(args[0]);
+                    execute_external(args, arg_count);
+                }
+                free(command);
+                current = current->next;
             }
 
+            free_list(path);
+            if (!found) {
+                fprintf(stderr, "[myshell] '%s' is not a known command.\n", args[0]);
+            }
         }
     }
 }
