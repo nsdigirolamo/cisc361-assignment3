@@ -17,6 +17,7 @@ A very simple shell program.
 #include <unistd.h>
 
 #include "cd.h"
+#include "execute_external.h"
 #include "kill.h"
 #include "list.h"
 #include "path.h"
@@ -29,8 +30,12 @@ A very simple shell program.
 #define MAX_BUFFER_SIZE 128
 #define MAX_ARGS 16
 
-void display_execute_message (const char *name) {
-    fprintf(stdout, "Executing built-in [%s]\n", name);
+void built_in_cmd_message (const char *name) {
+    fprintf(stderr, "Executing built-in [ %s ]\n", name);
+}
+
+void not_built_in_cmd_message (const char *name) {
+    fprintf(stderr, "Executing external [ %s ]\n", name);
 }
 
 void display_prompt(char *prefix) {
@@ -54,6 +59,13 @@ char **parse_args(char *args) {
 
 int main (int argc, char *argv[]) {
 
+    /*
+    // Debugging argv
+    for (int i = 0; i < argc; i++) {
+        fprintf(stderr, "argv[%d]: %s\n", i, argv[i]);
+    }
+    */
+
     char input[MAX_BUFFER_SIZE];
     char *args[MAX_ARGS];
     int arg_count = 0;
@@ -64,7 +76,7 @@ int main (int argc, char *argv[]) {
         display_prompt(prefix);
 
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
-            perror("[myshell] Error");
+            perror("[myshell] Input Error");
             continue;
         }
 
@@ -79,9 +91,12 @@ int main (int argc, char *argv[]) {
             }
         }
 
+        /*
+        // Debugging args
         for (int i = 0; i < arg_count; i++) {
             fprintf(stderr, "args[%d]: %s\n", i, args[i]);
         }
+        */
 
         if (arg_count == 0) {
             continue;
@@ -89,55 +104,55 @@ int main (int argc, char *argv[]) {
 
         if (strcmp(args[0], "exit") == 0) {
 
-            display_execute_message("exit");
+            built_in_cmd_message("exit");
             free(prefix);
             exit(0);
 
         } else if (strcmp(args[0], "which") == 0) {
 
-            display_execute_message("which");
+            built_in_cmd_message("which");
             which(args, arg_count);
 
         } else if (strcmp(args[0], "where") == 0) {
 
-            display_execute_message("where");
+            built_in_cmd_message("where");
             where(args, arg_count);
 
         } else if (strcmp(args[0], "cd") == 0) {
 
-            display_execute_message("cd");
+            built_in_cmd_message("cd");
             cd(args, arg_count);
 
         } else if (strcmp(args[0], "pwd") == 0) {
 
-            display_execute_message("pwd");
+            built_in_cmd_message("pwd");
             pwd();
 
         } else if (strcmp(args[0], "list") == 0) {
 
-            display_execute_message("list");
+            built_in_cmd_message("list");
             list(args, arg_count);
 
         } else if (strcmp(args[0], "pid") == 0) {
 
-            display_execute_message("pid");
+            built_in_cmd_message("pid");
             fprintf(stdout, "%d\n", getpid());
 
         } else if (strcmp(args[0], "kill") == 0) {
 
-            display_execute_message("kill");
+            built_in_cmd_message("kill");
             my_kill(args, arg_count);
 
         } else if (strcmp(args[0], "prompt") == 0) {
 
-            display_execute_message("prompt");
+            built_in_cmd_message("prompt");
 
             if (arg_count < 2) {
 
                 fprintf(stdout, "Input new prompt prefix: ");
 
                 if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
-                    perror("Input Error");
+                    perror("[myshell] Input Error");
                 } else if (input[strlen(input) - 1] == '\n') {
                     input[strlen(input) - 1] = '\0';
                     free(prefix);
@@ -155,17 +170,23 @@ int main (int argc, char *argv[]) {
 
         } else if (strcmp(args[0], "printenv") == 0) {
 
-            display_execute_message("printenv");
+            built_in_cmd_message("printenv");
             printenv();
 
         } else if (strcmp(args[0], "setenv") == 0) {
 
-            display_execute_message("setenv");
+            built_in_cmd_message("setenv");
             my_setenv(args, arg_count);
 
-        } else {
-            // check if the user has given the absolute path to an executable
-            // check if the user has given the name of an executable in their PATH
+        } else if (args[0][0] == '.' || args[0][0] == '/') {
+
+            if (access(args[0], X_OK) == 0) {
+                not_built_in_cmd_message(args[0]);
+                execute_external(args, arg_count);
+            } else {
+
+            }
+
         }
     }
 }
