@@ -42,6 +42,7 @@ void display_prompt(char *prefix) {
 
     char *ptr = getcwd(NULL, 0);
 
+    // If the prefix is NULL, the default prompt uses '>' as the prefix.
     if (ptr != NULL && prefix != NULL) {
         printf("[%s] %s ", ptr, prefix);
     } else if (ptr != NULL) {
@@ -75,11 +76,13 @@ int main (int argc, char *argv[]) {
 
         display_prompt(prefix);
 
+        // Getting input
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
             perror("[myshell] Input Error");
             continue;
         }
 
+        // Parsing input
         if (input[strlen(input) - 1] == '\n') {
             input[strlen(input) - 1] = '\0';
             char *token = strtok(input, " ");
