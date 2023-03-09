@@ -42,7 +42,7 @@ void my_kill (char *args[], int arg_count) {
         if (kill(pid, SIGTERM) == -1) {
             perror("[kill] Error");
         } else {
-            fprintf(stdout, "[kill] Killed process %d with signal %d.\n", pid, SIGTERM);
+            fprintf(stdout, "[kill] Killed process %ld with signal %d.\n", pid, SIGTERM);
         }
 
     } else {
@@ -86,7 +86,7 @@ void my_kill (char *args[], int arg_count) {
         if (kill(pid, signal) == -1) {
             perror("[kill] Error");
         } else {
-            fprintf(stdout, "[kill] Killed process %d with signal %d.\n", pid, signal);
+            fprintf(stdout, "[kill] Killed process %ld with signal %ld.\n", pid, signal);
         }
     }
 
