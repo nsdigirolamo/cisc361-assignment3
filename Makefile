@@ -8,6 +8,7 @@ OBJS += $(ODIR)/kill.o
 OBJS += $(ODIR)/list.o
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
+OBJS += $(ODIR)/printenv.o
 OBJS += $(ODIR)/pwd.o
 OBJS += $(ODIR)/where.o
 OBJS += $(ODIR)/which.o

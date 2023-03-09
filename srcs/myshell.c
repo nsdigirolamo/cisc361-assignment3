@@ -19,6 +19,7 @@ A very simple shell program.
 #include "kill.h"
 #include "list.h"
 #include "path.h"
+#include "printenv.h"
 #include "pwd.h"
 #include "where.h"
 #include "which.h"
@@ -145,7 +146,7 @@ int main (int argc, char *argv[]) {
             } else if (strcmp(args[0], "printenv") == 0) {
 
                 display_execute_message("printenv");
-                // todo
+                printenv();
 
             } else if (strcmp(args[0], "setenv") == 0) {
 
