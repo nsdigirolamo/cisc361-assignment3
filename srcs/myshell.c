@@ -10,6 +10,7 @@ A very simple shell program.
 
 */
 
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +31,8 @@ A very simple shell program.
 #define MAX_BUFFER_SIZE 128
 #define MAX_ARGS 16
 
+char *prefix = NULL;
+
 void built_in_cmd_message (const char *name) {
     fprintf(stdout, "[myshell] Executing built-in '%s'.\n", name);
 }
@@ -38,7 +41,7 @@ void not_built_in_cmd_message (const char *name) {
     fprintf(stdout, "[myshell] Executing external '%s'.\n", name);
 }
 
-void display_prompt(char *prefix) {
+void display_prompt() {
 
     char *ptr = getcwd(NULL, 0);
 
@@ -50,12 +53,15 @@ void display_prompt(char *prefix) {
     } else {
         perror("[myshell] Error showing prompt");
     }
+    
+    fflush(stdout);
 
     free(ptr);
 }
 
-char **parse_args(char *args) {
-
+void signal_handler (int signal) {
+    fprintf(stdout, "\n");
+    display_prompt();
 }
 
 int main (int argc, char *argv[]) {
@@ -70,16 +76,25 @@ int main (int argc, char *argv[]) {
     char input[MAX_BUFFER_SIZE];
     char *args[MAX_ARGS];
     int arg_count = 0;
-    char *prefix = NULL;
+
+    signal(SIGINT, signal_handler);
+    signal(SIGTSTP, signal_handler);
+    signal(SIGTERM, signal_handler);
 
     while (true) {
 
-        display_prompt(prefix);
+        display_prompt();
 
         // Getting input
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
-            perror("[myshell] Input Error");
-            continue;
+            if (ferror(stdin)) {
+                perror("[myshell] Input Error");
+                exit(-1);
+            } else if (feof(stdin)) {
+                clearerr(stdin);
+                fprintf(stdout, "[myshell] Use 'exit' to leave.\n");
+                continue;
+            }
         }
 
         // Parsing input
