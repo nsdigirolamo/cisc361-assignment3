@@ -34,11 +34,11 @@ A very simple shell program.
 char *prefix = NULL;
 
 void built_in_cmd_message (const char *name) {
-    fprintf(stdout, "[myshell] Executing built-in '%s'.\n", name);
+    fprintf(stdout, "[myshell] Executing built-in '%s' command.\n", name);
 }
 
 void not_built_in_cmd_message (const char *name) {
-    fprintf(stdout, "[myshell] Executing external '%s'.\n", name);
+    fprintf(stdout, "[myshell] Executing external '%s' command.\n", name);
 }
 
 void display_prompt() {
