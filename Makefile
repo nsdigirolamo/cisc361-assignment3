@@ -15,7 +15,7 @@ OBJS += $(ODIR)/setenv.o
 OBJS += $(ODIR)/where.o
 OBJS += $(ODIR)/which.o
 
-CFLAGS = -I $(IDIR) -ggdb3
+CFLAGS = -I $(IDIR)
 LIBS =
 
 make: myshell
