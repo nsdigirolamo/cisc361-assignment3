@@ -89,6 +89,8 @@ int main (int argc, char *argv[]) {
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
             if (ferror(stdin)) {
                 perror("[myshell] Input Error");
+                free_previous_dir();
+                free(prefix);
                 exit(-1);
             } else if (feof(stdin)) {
                 clearerr(stdin);
@@ -123,6 +125,7 @@ int main (int argc, char *argv[]) {
         if (strcmp(args[0], "exit") == 0) {
 
             built_in_cmd_message("exit");
+            free_previous_dir();
             free(prefix);
             exit(0);
 

@@ -12,5 +12,6 @@ Assignment 3 - Simple Shell
 #define CD_H
 
 void cd (char *args[], int arg_count);
+void free_previous_dir();
 
 #endif

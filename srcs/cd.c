@@ -54,3 +54,7 @@ void cd (char *args[], int arg_count) {
         }
     }
 }
+
+void free_previous_dir() {
+    free(previous_dir);
+}
