@@ -11,6 +11,6 @@ Assignment 3 - Simple Shell
 #ifndef PRINTENV_H
 #define PRINTENV_H
 
-void printenv ();
+int printenv (int argc, char *argv[]);
 
 #endif

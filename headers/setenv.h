@@ -11,6 +11,6 @@ Assignment 3 - Simple Shell
 #ifndef SETENV_H
 #define SETENV_H
 
-void my_setenv (char *args[], int arg_count);
+int my_setenv (int argc, char *argv[]);
 
 #endif
