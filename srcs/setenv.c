@@ -6,33 +6,47 @@ setenv.c
 Created for University of Delaware CISC361 - Operating Systems
 Assignment 3 - Simple Shell
 
-A simple setenv command.
+A simple setenv command. Without arguments it prints a list of the environment
+variables. With arguments it changes the value of the environment variable
+passed as an argument. On success returns 0. On failure returns -1 and sets
+errno to the appropriate value.
+
+E2BIG - Too many arguments.
 
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "linkedlist.h"
+#include "path.h"
 #include "printenv.h"
 #include "setenv.h"
 
-void my_setenv (char *args[], int arg_count) {
+int my_setenv (int argc, char *argv[]) {
 
-    if (arg_count < 2) {
+    if (argc < 2) {
 
-        printenv();
+        char *empty_args[] = { NULL };
+        printenv(1, empty_args);
+        return 0;
 
-    } else if (arg_count == 2) {
+    } else if (argc == 2) {
 
-        setenv(args[1], "", 1);
+        setenv(argv[1], "", 1);
+        return 0;
 
-    } else if (arg_count == 3) {
+    } else if (argc == 3) {
 
-        setenv(args[1], args[2], 1);
+        setenv(argv[1], argv[2], 1);
+        return 0;
 
     } else {
 
-        fprintf(stderr, "[setenv] Too many arguments.");
+        errno = E2BIG;
+        return -1;
 
     }
 }
