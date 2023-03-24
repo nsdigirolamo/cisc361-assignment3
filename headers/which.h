@@ -13,6 +13,6 @@ Assignment 3 - Simple Shell
 
 #include "path.h"
 
-list_element *which (int argc, char *argv[]);
+list_element *which (int argc, char *argv[], bool show_all);
 
 #endif

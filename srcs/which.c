@@ -27,7 +27,7 @@ ENOENT - None of the commands were found on the PATH.
 
 extern list_element *env_path;
 
-list_element *which (int argc, char *argv[]) {
+list_element *which (int argc, char *argv[], bool show_all) {
 
     if (argc <= 1) {
         errno = EINVAL;
@@ -56,10 +56,10 @@ list_element *which (int argc, char *argv[]) {
                 current->next = malloc(sizeof(list_element));
                 prev = current;
                 current = current->next;
-                break;
+                if (!show_all) { break; }
+            } else {
+                free(command);
             }
-
-            free(command);
 
             current_env_path = current_env_path->next;
         }
