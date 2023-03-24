@@ -26,7 +26,6 @@ A very simple shell program.
 #include "printenv.h"
 #include "pwd.h"
 #include "setenv.h"
-#include "where.h"
 #include "which.h"
 
 #define MAX_BUFFER_SIZE 128
@@ -108,11 +107,13 @@ int main (int argc, char *argv[]) {
             }
         }
 
+        /*
         // Debugging args
         fprintf(stderr, "arg_count: %d\n", arg_count);
         for (int i = 0; i < arg_count; i++) {
             fprintf(stderr, "args[%d]: %s\n", i, args[i]);
         }
+        */
 
         if (arg_count == 0) {
             continue;
@@ -129,11 +130,11 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "which") == 0) {
 
             built_in_cmd_message("which");
-            list_element *commands = which(arg_count, args);
+            list_element *path_locations = which(arg_count, args, false);
 
-            if (commands != NULL) {
-                print_list(commands);
-                free_list(commands);
+            if (path_locations != NULL) {
+                print_list(path_locations);
+                free_list(path_locations);
             } else if (errno == EINVAL) {
                 printf("[which] Error: Not enough arguments.\n");
             } else if (errno == ENOENT) {
@@ -143,7 +144,16 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "where") == 0) {
 
             built_in_cmd_message("where");
-            where(args, arg_count);
+            list_element *path_locations = which(arg_count, args, true);
+
+            if (path_locations != NULL) {
+                print_list(path_locations);
+                free_list(path_locations);
+            } else if (errno == EINVAL) {
+                printf("[where] Error: Not enough arguments.\n");
+            } else if (errno == ENOENT) {
+                printf("[where] Error: Argument(s) not found in the PATH.\n");
+            }
 
         } else if (strcmp(args[0], "cd") == 0) {
 
@@ -214,33 +224,16 @@ int main (int argc, char *argv[]) {
 
         } else {
 
-            char *name = args[0];
+            char *temp_args[] = { NULL, args[0] };
+            list_element *command_location = which(2, temp_args, false);
 
-            list_element *path = get_path();
-            list_element *current = path;
-            bool found = false;
-
-            while (current != NULL) {
-                // Final string will be "current->element" + '/' + "name" + '\0'
-                // So the length has to be the strings' lengths + 2
-                int length = strlen(current->element) + strlen(name) + 2;
-                char *command = malloc(length * sizeof(char));
-                strcpy(command, current->element);
-                strcat(command, "/");
-                strcat(command, name);
-                if (access(command, X_OK) == 0) {
-                    found = true;
-                    args[0] = command;
-                    not_built_in_cmd_message(args[0]);
-                    execute_external(args, arg_count);
-                }
-                free(command);
-                current = current->next;
-            }
-
-            free_list(path);
-            if (!found) {
-                fprintf(stderr, "[myshell] '%s' is not a known command.\n", args[0]);
+            if (command_location != NULL) {
+                args[0] = command_location->element;
+                not_built_in_cmd_message(args[0]);
+                execute_external(args, arg_count);
+                free_list(command_location);
+            } else if (errno == ENOENT) {
+                printf("[myshell] '%s' is not a known command.\n", args[0]);
             }
         }
     }
