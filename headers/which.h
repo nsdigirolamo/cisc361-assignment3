@@ -11,6 +11,8 @@ Assignment 3 - Simple Shell
 #ifndef WHICH_H
 #define WHICH_H
 
-void which (char *args[], int arg_count);
+#include "path.h"
+
+list_element *which (int argc, char *argv[], bool show_all);
 
 #endif

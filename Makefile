@@ -6,13 +6,13 @@ ODIR = objs
 OBJS += $(ODIR)/cd.o
 OBJS += $(ODIR)/execute_external.o
 OBJS += $(ODIR)/kill.o
+OBJS += $(ODIR)/linkedlist.o
 OBJS += $(ODIR)/list.o
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
 OBJS += $(ODIR)/printenv.o
 OBJS += $(ODIR)/pwd.o
 OBJS += $(ODIR)/setenv.o
-OBJS += $(ODIR)/where.o
 OBJS += $(ODIR)/which.o
 
 CFLAGS = -I $(IDIR)

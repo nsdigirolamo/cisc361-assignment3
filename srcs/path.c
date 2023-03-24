@@ -16,46 +16,29 @@ Parses the components of the PATH environment variable into a linked list.
 
 #include "path.h"
 
-path_element *get_path () {
+list_element *get_path () {
 
-    char *ptr = getenv("PATH");
-    char *path = malloc((strlen(ptr) + 1) * sizeof(char));
-    strcpy(path, ptr);
+    char *env_ptr = getenv("PATH");
+    char *path = malloc((strlen(env_ptr) + 1) * sizeof(char));
+    strcpy(path, env_ptr);
+
+    list_element *head = malloc(sizeof(list_element));
+    list_element *current = head;
+
     char *element = strtok(path, ":");
 
-    path_element *head = malloc(sizeof(path_element));
-    head->element = malloc((strlen(element) + 1) * sizeof(char));
-    strcpy(head->element, element);
-    head->next = NULL;
-
-    path_element *current = head;
-    element = strtok(NULL, ":");
-
-    while (element != NULL) {
-        current->next = malloc(sizeof(path_element));
-        current = current->next;
+    while (element) {
         current->element = malloc((strlen(element) + 1) * sizeof(char));
         strcpy(current->element, element);
-        current->next = NULL;
         element = strtok(NULL, ":");
+        if (element) {
+            current->next = malloc(sizeof(list_element));
+            current = current->next;
+        } else {
+            current->next = NULL;
+        }
     }
 
     free(path);
     return head;
-}
-
-void print_list(path_element *head) {
-    while (head != NULL) {
-        printf("%s\n", head->element);
-        head = head->next;
-    }
-}
-
-void free_list (path_element *head) {
-    while (head) {
-        path_element *temp = head;
-        head = head->next;
-        free(temp->element);
-        free(temp);
-    }
 }
