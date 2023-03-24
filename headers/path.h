@@ -8,16 +8,11 @@ Assignment 3 - Simple Shell
 
 */
 
-#ifndef GET_PATH_H
-#define GET_PATH_H
+#ifndef PATH_H
+#define PATH_H
 
-struct path_element {
-    char *element;
-    struct path_element *next;
-} typedef path_element;
+#include "linkedlist.h"
 
-path_element *get_path ();
-void print_list(path_element *head);
-void free_list (path_element *head);
+list_element *get_path ();
 
 #endif
