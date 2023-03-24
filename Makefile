@@ -13,7 +13,6 @@ OBJS += $(ODIR)/path.o
 OBJS += $(ODIR)/printenv.o
 OBJS += $(ODIR)/pwd.o
 OBJS += $(ODIR)/setenv.o
-OBJS += $(ODIR)/where.o
 OBJS += $(ODIR)/which.o
 
 CFLAGS = -I $(IDIR)
