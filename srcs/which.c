@@ -25,14 +25,14 @@ ENOENT - None of the commands were found on the PATH.
 #include "path.h"
 #include "which.h"
 
-extern list_element *env_path;
-
 list_element *which (int argc, char *argv[], bool show_all) {
 
     if (argc <= 1) {
         errno = EINVAL;
         return NULL;
     }
+
+    list_element *env_path = get_path();
 
     list_element *head = malloc(sizeof(list_element));
     list_element *current = head;
@@ -64,6 +64,8 @@ list_element *which (int argc, char *argv[], bool show_all) {
             current_env_path = current_env_path->next;
         }
     }
+
+    free_list(env_path);
 
     if (prev) {
         // Free current because its space was allocated but never initialized.
