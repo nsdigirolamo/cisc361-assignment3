@@ -31,7 +31,6 @@ A very simple shell program.
 #define MAX_BUFFER_SIZE 128
 #define MAX_ARGS 16
 
-list_element *env_path = NULL;
 char *prefix = NULL;
 
 void built_in_cmd_message (const char *name) {
@@ -66,8 +65,6 @@ void signal_handler (int signal) {
 }
 
 int main (int argc, char *argv[]) {
-
-    env_path = get_path();
 
     char input[MAX_BUFFER_SIZE];
     char *args[MAX_ARGS];
@@ -122,7 +119,6 @@ int main (int argc, char *argv[]) {
         if (strcmp(args[0], "exit") == 0) {
 
             built_in_cmd_message("exit");
-            free_list(env_path);
             free_previous_dir();
             free(prefix);
             exit(0);
