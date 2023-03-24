@@ -204,12 +204,26 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "printenv") == 0) {
 
             built_in_cmd_message("printenv");
-            printenv();
+            bool failed = printenv(arg_count, args) != 0;
+
+            if (failed) {
+                if (errno == EINVAL) {
+                    fprintf(stderr, "[printenv] Error: %s could not be found.");
+                } else if (errno == E2BIG) {
+                    fprintf(stderr, "[printenv] Error: Too many arguments.");
+                }
+            } 
 
         } else if (strcmp(args[0], "setenv") == 0) {
 
             built_in_cmd_message("setenv");
-            my_setenv(args, arg_count);
+            bool failed = my_setenv(arg_count, args) != 0;
+
+            if (failed) {
+                if (errno = E2BIG) {
+                    fprintf(stderr, "[setenv] Error: Too many arguments.");
+                }
+            }
 
         } else if (args[0][0] == '.' || args[0][0] == '/') {
 
