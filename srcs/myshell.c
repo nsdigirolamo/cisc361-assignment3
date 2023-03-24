@@ -10,6 +10,7 @@ A very simple shell program.
 
 */
 
+#include <errno.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -31,6 +32,7 @@ A very simple shell program.
 #define MAX_BUFFER_SIZE 128
 #define MAX_ARGS 16
 
+list_element *env_path = NULL;
 char *prefix = NULL;
 
 void built_in_cmd_message (const char *name) {
@@ -66,12 +68,7 @@ void signal_handler (int signal) {
 
 int main (int argc, char *argv[]) {
 
-    /*
-    // Debugging argv
-    for (int i = 0; i < argc; i++) {
-        fprintf(stderr, "argv[%d]: %s\n", i, argv[i]);
-    }
-    */
+    env_path = get_path();
 
     char input[MAX_BUFFER_SIZE];
     char *args[MAX_ARGS];
@@ -111,12 +108,11 @@ int main (int argc, char *argv[]) {
             }
         }
 
-        /*
         // Debugging args
+        fprintf(stderr, "arg_count: %d\n", arg_count);
         for (int i = 0; i < arg_count; i++) {
             fprintf(stderr, "args[%d]: %s\n", i, args[i]);
         }
-        */
 
         if (arg_count == 0) {
             continue;
@@ -125,6 +121,7 @@ int main (int argc, char *argv[]) {
         if (strcmp(args[0], "exit") == 0) {
 
             built_in_cmd_message("exit");
+            free_list(env_path);
             free_previous_dir();
             free(prefix);
             exit(0);
@@ -132,7 +129,16 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "which") == 0) {
 
             built_in_cmd_message("which");
-            which(args, arg_count);
+            list_element *commands = which(arg_count, args);
+
+            if (commands != NULL) {
+                print_list(commands);
+                free_list(commands);
+            } else if (errno == EINVAL) {
+                printf("[which] Error: Not enough arguments.\n");
+            } else if (errno == ENOENT) {
+                printf("[which] Error: Argument(s) not found in the PATH.\n");
+            }
 
         } else if (strcmp(args[0], "where") == 0) {
 
@@ -210,8 +216,8 @@ int main (int argc, char *argv[]) {
 
             char *name = args[0];
 
-            path_element *path = get_path();
-            path_element *current = path;
+            list_element *path = get_path();
+            list_element *current = path;
             bool found = false;
 
             while (current != NULL) {
