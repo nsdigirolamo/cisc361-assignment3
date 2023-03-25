@@ -16,19 +16,27 @@ A simple list command.
 
 #include "list.h"
 
-void list (char *args[], int arg_count) {
+void list (int argc, char *argv[]) {
 
     DIR *dir;
     struct dirent *entry;
 
-    if (arg_count < 2) {
+    if (argc <= 1) {
+        argv[1] = "./";
+        argc = 2;
+    }
 
-        dir = opendir("./");
+    for (int i = 1; i < argc; i++) {
+
+        dir = opendir(argv[i]);
+
+        fprintf(stdout, "\nContents of %s:\n", argv[i]);
+
         if (dir == NULL) {
-            perror("[list] Error");
-            return;
+            fprintf(stderr, "[list] Error opening directory %s: ", argv[i]);
+            perror("");
+            continue;
         }
-        fprintf(stdout, "Contents of Current Working Directory:\n");
 
         entry = readdir(dir);
         while (entry != NULL) {
@@ -36,25 +44,7 @@ void list (char *args[], int arg_count) {
             entry = readdir(dir);
         }
         closedir(dir);
-
-    } else {
-
-        for (int i = 1; i < arg_count; i++) {
-            
-            dir = opendir(args[i]);
-            if (dir == NULL) {
-                fprintf(stderr, "[list] Error opening directory %s: ", args[i]);
-                perror("");
-                continue;
-            }
-            fprintf(stdout, "\nContents of %s:\n", args[i]);
-            
-            entry = readdir(dir);
-            while (entry != NULL) {
-                fprintf(stdout, "%s\n", entry->d_name);
-                entry = readdir(dir);
-            }
-            closedir(dir);
-        }
     }
+
+    fprintf(stdout, "\n");
 }

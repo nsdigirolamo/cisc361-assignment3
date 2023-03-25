@@ -82,7 +82,7 @@ int main (int argc, char *argv[]) {
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
             if (ferror(stdin)) {
                 perror("[myshell] Input Error");
-                cd_cleaup();
+                cd_cleanup();
                 free(prefix);
                 exit(-1);
             } else if (feof(stdin)) {
@@ -119,7 +119,7 @@ int main (int argc, char *argv[]) {
         if (strcmp(args[0], "exit") == 0) {
 
             built_in_cmd_message("exit");
-            cd_cleaup();
+            cd_cleanup();
             free(prefix);
             exit(0);
 
@@ -164,7 +164,7 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "list") == 0) {
 
             built_in_cmd_message("list");
-            list(args, arg_count);
+            list(arg_count, args);
 
         } else if (strcmp(args[0], "pid") == 0) {
 
