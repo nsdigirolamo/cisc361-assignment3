@@ -6,10 +6,15 @@ cd.c
 Created for University of Delaware CISC361 - Operating Systems
 Assignment 3 - Simple Shell
 
-A simple cd command.
+A simple cd command. Changes to the directory given as an argument. Providing no
+arguments will change to the home directory, Providing '-' as an argument will 
+change to the last visited directory. On success returns 0. On failure returns
+-1 and sets errno to the appropriate value.
 
 */
 
+#include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,42 +24,49 @@ A simple cd command.
 
 char *previous_dir = NULL;
 
-void cd (char *args[], int arg_count) {
+int cd (int argc, char *argv[]) {
 
-    char *temp = getcwd(NULL, 0);
+    char *cwd = getcwd(NULL, 0);
+    char *destination = NULL;
 
-    if (arg_count < 2) {
-        char *ptr = getenv("HOME");
-        char *path = malloc((strlen(ptr) + 1) * sizeof(char));
-        strcpy(path, ptr);
-        if (chdir(path) == -1) {
-            free(temp);
-            perror("[cd] Error");
+    bool dest_needs_free = false;
+
+    if (argc <= 1) {
+
+        char *env_ptr = getenv("HOME");
+        destination = malloc((strlen(env_ptr) + 1) * sizeof(char));
+        strcpy(destination, env_ptr);
+        dest_needs_free = true;
+
+    } else if (argc == 2 && strcmp(argv[1], "-") == 0) {
+
+        if (previous_dir) {
+            destination = previous_dir;
         } else {
-            free(previous_dir);
-            previous_dir = temp;
+            errno = ENOENT;
+            free(cwd);
+            return -1;
         }
-        free(path);
-    } else if (arg_count == 2 && strcmp(args[1], "-") == 0) {
-        if (chdir(previous_dir) == -1) {
-            free(temp);
-            perror("[cd] Error");
-        } else {
-            free(previous_dir);
-            previous_dir = temp;
-        }
+
     } else {
-        char *path = args[1];
-        if (chdir(path) == -1) {
-            free(temp);
-            perror("[cd] Error");
-        } else {
-            free(previous_dir);
-            previous_dir = temp;
-        }
+
+        destination = argv[1];
+
+    }
+
+    bool success = chdir(destination) == 0;
+    if (dest_needs_free) { free(destination); }
+
+    if (success) {
+        free(previous_dir);
+        previous_dir = cwd;
+        return 0;
+    } else {
+        free(cwd);
+        return -1;
     }
 }
 
-void free_previous_dir() {
+void cd_cleanup () {
     free(previous_dir);
 }
