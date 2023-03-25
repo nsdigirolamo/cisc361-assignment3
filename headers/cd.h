@@ -11,7 +11,7 @@ Assignment 3 - Simple Shell
 #ifndef CD_H
 #define CD_H
 
-void cd (char *args[], int arg_count);
-void free_previous_dir();
+int cd (int argc, char *argv[]);
+void cd_cleanup ();
 
 #endif

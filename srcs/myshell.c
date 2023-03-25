@@ -82,7 +82,7 @@ int main (int argc, char *argv[]) {
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
             if (ferror(stdin)) {
                 perror("[myshell] Input Error");
-                free_previous_dir();
+                cd_cleaup();
                 free(prefix);
                 exit(-1);
             } else if (feof(stdin)) {
@@ -119,7 +119,7 @@ int main (int argc, char *argv[]) {
         if (strcmp(args[0], "exit") == 0) {
 
             built_in_cmd_message("exit");
-            free_previous_dir();
+            cd_cleaup();
             free(prefix);
             exit(0);
 
@@ -154,7 +154,7 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "cd") == 0) {
 
             built_in_cmd_message("cd");
-            cd(args, arg_count);
+            if (cd(arg_count, args) != 0) { perror("[cd] Error"); }
 
         } else if (strcmp(args[0], "pwd") == 0) {
 
