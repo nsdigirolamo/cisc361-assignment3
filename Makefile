@@ -11,11 +11,12 @@ OBJS += $(ODIR)/list.o
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
 OBJS += $(ODIR)/printenv.o
+OBJS += $(ODIR)/prompt.o
 OBJS += $(ODIR)/pwd.o
 OBJS += $(ODIR)/setenv.o
 OBJS += $(ODIR)/which.o
 
-CFLAGS = -I $(IDIR)
+CFLAGS = -g -I $(IDIR)
 LIBS =
 
 make: myshell
