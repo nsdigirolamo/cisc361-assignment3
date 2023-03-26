@@ -24,14 +24,13 @@ A very simple shell program.
 #include "list.h"
 #include "path.h"
 #include "printenv.h"
+#include "prompt.h"
 #include "pwd.h"
 #include "setenv.h"
 #include "which.h"
 
-#define MAX_BUFFER_SIZE 128
-#define MAX_ARGS 16
-
-char *prefix = NULL;
+const int MAX_BUFFER_SIZE = 128;
+const int MAX_ARGS = 16;
 
 void built_in_cmd_message (const char *name) {
     fprintf(stdout, "[myshell] Executing built-in '%s' command.\n", name);
@@ -41,27 +40,9 @@ void not_built_in_cmd_message (const char *name) {
     fprintf(stdout, "[myshell] Executing external '%s' command.\n", name);
 }
 
-void display_prompt() {
-
-    char *ptr = getcwd(NULL, 0);
-
-    // If the prefix is NULL, the default prompt uses '>' as the prefix.
-    if (ptr != NULL && prefix != NULL) {
-        printf("[%s] %s ", ptr, prefix);
-    } else if (ptr != NULL) {
-        printf("[%s] > ", ptr);
-    } else {
-        perror("[myshell] Error showing prompt");
-    }
-    
-    fflush(stdout);
-
-    free(ptr);
-}
-
 void signal_handler (int signal) {
     fprintf(stdout, "\n");
-    display_prompt();
+    print_prompt();
 }
 
 int main (int argc, char *argv[]) {
@@ -76,15 +57,16 @@ int main (int argc, char *argv[]) {
 
     while (true) {
 
-        display_prompt();
+        if (print_prompt() != 0) {
+            perror("[myshell] Error printing prompt");
+            continue;
+        }
 
         // Getting input
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
             if (ferror(stdin)) {
                 perror("[myshell] Input Error");
-                cd_cleanup();
-                free(prefix);
-                exit(-1);
+                continue;
             } else if (feof(stdin)) {
                 clearerr(stdin);
                 fprintf(stdout, "[myshell] Use 'exit' to leave.\n");
@@ -104,14 +86,6 @@ int main (int argc, char *argv[]) {
             }
         }
 
-        /*
-        // Debugging args
-        fprintf(stderr, "arg_count: %d\n", arg_count);
-        for (int i = 0; i < arg_count; i++) {
-            fprintf(stderr, "args[%d]: %s\n", i, args[i]);
-        }
-        */
-
         if (arg_count == 0) {
             continue;
         }
@@ -120,7 +94,7 @@ int main (int argc, char *argv[]) {
 
             built_in_cmd_message("exit");
             cd_cleanup();
-            free(prefix);
+            prompt_cleanup();
             exit(0);
 
         } else if (strcmp(args[0], "which") == 0) {
@@ -154,7 +128,10 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "cd") == 0) {
 
             built_in_cmd_message("cd");
-            if (cd(arg_count, args) != 0) { perror("[cd] Error"); }
+
+            if (cd(arg_count, args) != 0) { 
+                perror("[cd] Error"); 
+            }
 
         } else if (strcmp(args[0], "pwd") == 0) {
 
@@ -180,33 +157,15 @@ int main (int argc, char *argv[]) {
 
             built_in_cmd_message("prompt");
 
-            if (arg_count < 2) {
-
-                fprintf(stdout, "Input new prompt prefix: ");
-
-                if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
-                    perror("[myshell] Input Error");
-                } else if (input[strlen(input) - 1] == '\n') {
-                    input[strlen(input) - 1] = '\0';
-                    free(prefix);
-                    prefix = malloc((strlen(input) + 1) * sizeof(char));
-                    strcpy(prefix, input);
-                }
-
-            } else {
-
-                free(prefix);
-                prefix = malloc((strlen(args[1]) + 1) * sizeof(char));
-                strcpy(prefix, args[1]);
-
+            if (set_prefix(arg_count, args) != 0) {
+                perror("[myshell]: Error setting prompt");
             }
 
         } else if (strcmp(args[0], "printenv") == 0) {
 
             built_in_cmd_message("printenv");
-            bool failed = printenv(arg_count, args) != 0;
 
-            if (failed) {
+            if (printenv(arg_count, args) != 0) {
                 if (errno == EINVAL) {
                     fprintf(stderr, "[printenv] Error: %s could not be found.");
                 } else if (errno == E2BIG) {
@@ -217,9 +176,8 @@ int main (int argc, char *argv[]) {
         } else if (strcmp(args[0], "setenv") == 0) {
 
             built_in_cmd_message("setenv");
-            bool failed = my_setenv(arg_count, args) != 0;
 
-            if (failed) {
+            if (my_setenv(arg_count, args) != 0) {
                 if (errno = E2BIG) {
                     fprintf(stderr, "[setenv] Error: Too many arguments.");
                 }
