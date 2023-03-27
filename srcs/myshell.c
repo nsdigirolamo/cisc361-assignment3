@@ -11,6 +11,7 @@ A very simple shell program.
 */
 
 #include <errno.h>
+#include <glob.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -31,6 +32,7 @@ A very simple shell program.
 
 const int MAX_BUFFER_SIZE = 128;
 const int MAX_ARGS = 16;
+glob_t glob_buffer;
 
 void built_in_cmd_message (const char *name) {
     fprintf(stdout, "[myshell] Executing built-in '%s' command.\n", name);
@@ -43,6 +45,14 @@ void not_built_in_cmd_message (const char *name) {
 void signal_handler (int signal) {
     fprintf(stdout, "\n");
     print_prompt();
+}
+
+void my_exit(int retval) {
+    built_in_cmd_message("exit");
+    globfree(&glob_buffer);
+    cd_cleanup();
+    prompt_cleanup();
+    exit(retval);
 }
 
 int main (int argc, char *argv[]) {
@@ -90,12 +100,21 @@ int main (int argc, char *argv[]) {
             continue;
         }
 
+        // Parsing globs
+        int flags = GLOB_NOCHECK | GLOB_BRACE | GLOB_TILDE;
+        glob(args[0], flags, NULL, &glob_buffer);
+        for (int i = 1; i < arg_count; i++) {
+            glob(args[i], flags | GLOB_APPEND, NULL, &glob_buffer);
+        }
+        arg_count = glob_buffer.gl_pathc;
+        args[arg_count];
+        for (int i = 0; i < arg_count; i++) {
+            args[i] = glob_buffer.gl_pathv[i];
+        }
+
         if (strcmp(args[0], "exit") == 0) {
 
-            built_in_cmd_message("exit");
-            cd_cleanup();
-            prompt_cleanup();
-            exit(0);
+            my_exit(0);
 
         } else if (strcmp(args[0], "which") == 0) {
 
@@ -188,12 +207,15 @@ int main (int argc, char *argv[]) {
             if (access(args[0], X_OK) == 0) {
                 not_built_in_cmd_message(args[0]);
                 execute_external(args, arg_count);
-            } 
+            } else {
+                fprintf(stderr, "[myshell] '%s' is not a known command.\n", args[0]);
+            }
 
         } else {
 
-            char *temp_args[] = { NULL, args[0] };
-            list_element *command_location = which(2, temp_args, false);
+            char *temp_argv[] = { NULL, args[0] };
+            int temp_argc = 2;
+            list_element *command_location = which(temp_argc, temp_argv, false);
 
             if (command_location != NULL) {
                 args[0] = command_location->element;
@@ -201,8 +223,10 @@ int main (int argc, char *argv[]) {
                 execute_external(args, arg_count);
                 free_list(command_location);
             } else if (errno == ENOENT) {
-                printf("[myshell] '%s' is not a known command.\n", args[0]);
+                fprintf(stderr, "[myshell] '%s' is not a known command.\n", args[0]);
             }
         }
+
+        globfree(&glob_buffer);
     }
 }

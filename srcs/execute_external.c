@@ -14,11 +14,14 @@ has to check beforehand.
 
 #include "execute_external.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include "myshell.h"
 
 extern char **environ;
 
@@ -38,7 +41,13 @@ void execute_external (char *args[], int arg_count) {
         exec_args[arg_count] = NULL;
 
         if (execve(args[0], exec_args, environ) == -1) {
-            perror("[myshell] Error");
+            perror("[myshell] Error executing command");
+            fprintf(stderr, "[myshell] Command had error number %d", errno);
+            for (int i = 0; i < arg_count; i++) {
+                free(exec_args[i]);
+            }
+            free(exec_args);
+            my_exit(errno);
         }
 
     } else {
@@ -46,18 +55,8 @@ void execute_external (char *args[], int arg_count) {
         int wstatus;
         pid = waitpid(pid, &wstatus, 0);
         if (pid == -1) {
-            perror("[myshell] Error waiting for child");
+            perror("[myshell] Error making child");
         }
 
-        /*
-        // Debugging child
-        fprintf(stdout, "Done waiting for child [ %d ]\n", pid);
-        fprintf(stdout, "Exit status: %d\n", WEXITSTATUS(wstatus));
-        fprintf(stdout, "Child was terminated by...\n");
-        if (WIFSIGNALED(wstatus))
-            printf("[WIFSIGNALED] Signal [WTERMSIG] %d\n", WTERMSIG(wstatus));
-        if (WIFSTOPPED(wstatus))
-            printf("[WIFSTOPPED] The delivery of a signal [WSTOPSIG] %d\n.", WSTOPSIG(wstatus));
-        */
     }
 }
