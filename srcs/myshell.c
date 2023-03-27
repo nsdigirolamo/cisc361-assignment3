@@ -11,6 +11,7 @@ A very simple shell program.
 */
 
 #include <errno.h>
+#include <glob.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -90,9 +91,23 @@ int main (int argc, char *argv[]) {
             continue;
         }
 
+        // Parsing globs
+        glob_t glob_buffer;
+        int flags = GLOB_NOCHECK | GLOB_BRACE | GLOB_TILDE;
+        glob(args[0], flags, NULL, &glob_buffer);
+        for (int i = 1; i < arg_count; i++) {
+            glob(args[i], flags | GLOB_APPEND, NULL, &glob_buffer);
+        }
+        arg_count = glob_buffer.gl_pathc;
+        args[arg_count];
+        for (int i = 0; i < arg_count; i++) {
+            args[i] = glob_buffer.gl_pathv[i];
+        }
+
         if (strcmp(args[0], "exit") == 0) {
 
             built_in_cmd_message("exit");
+            globfree(&glob_buffer);
             cd_cleanup();
             prompt_cleanup();
             exit(0);
@@ -204,5 +219,7 @@ int main (int argc, char *argv[]) {
                 printf("[myshell] '%s' is not a known command.\n", args[0]);
             }
         }
+
+        globfree(&glob_buffer);
     }
 }
