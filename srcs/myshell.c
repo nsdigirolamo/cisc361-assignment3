@@ -17,6 +17,7 @@ A very simple shell program.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "cd.h"
@@ -47,6 +48,27 @@ void signal_handler (int signal) {
     print_prompt();
 }
 
+void zombie_cleanup() {
+
+    int status;
+    pid_t wait_pid = waitpid((pid_t)-1, &status, WNOHANG);
+
+    if (wait_pid == -1) {
+        if (errno != ECHILD) { perror("[myshell] ZC - Wait Error"); }
+        return;
+    }
+
+    if (wait_pid != 0) {
+        if (WIFEXITED(status)) {
+        fprintf(stderr, "[myshell] Child exited normally: PID=%d status=%d\n", wait_pid, WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            fprintf(stderr, "[myshell] Child killed: PID=%d signal=%d\n", wait_pid, WTERMSIG(status));
+        } else if (WIFSTOPPED(status)) {
+            fprintf(stderr, "[myshell] Child stopped: PID=%d signal=%d\n", wait_pid, WSTOPSIG(status));
+        }
+    }
+}
+
 void my_exit(int retval) {
     built_in_cmd_message("exit");
     globfree(&glob_buffer);
@@ -66,6 +88,8 @@ int main (int argc, char *argv[]) {
     signal(SIGTERM, signal_handler);
 
     while (true) {
+
+        zombie_cleanup();
 
         if (print_prompt() != 0) {
             perror("[myshell] Error printing prompt");
@@ -206,7 +230,7 @@ int main (int argc, char *argv[]) {
 
             if (access(args[0], X_OK) == 0) {
                 not_built_in_cmd_message(args[0]);
-                execute_external(args, arg_count);
+                execute_external(arg_count, args);
             } else {
                 fprintf(stderr, "[myshell] '%s' is not a known command.\n", args[0]);
             }
@@ -220,7 +244,7 @@ int main (int argc, char *argv[]) {
             if (command_location != NULL) {
                 args[0] = command_location->element;
                 not_built_in_cmd_message(args[0]);
-                execute_external(args, arg_count);
+                execute_external(arg_count, args);
                 free_list(command_location);
             } else if (errno == ENOENT) {
                 fprintf(stderr, "[myshell] '%s' is not a known command.\n", args[0]);
