@@ -15,6 +15,7 @@ has to check beforehand.
 #include "execute_external.h"
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,38 +26,55 @@ has to check beforehand.
 
 extern char **environ;
 
-void execute_external (char *args[], int arg_count) {
+void execute_external (int argc, char *argv[]) {
 
-    int pid = fork();
+    bool is_background = false;
 
-    if (pid == 0) {
+    if (strcmp(argv[argc - 1], "&") == 0) {
+        is_background = true;
+        argv[argc - 1] = '\0';
+        argc = argc - 1;
+    }
 
-        char** exec_args = calloc(arg_count + 1, sizeof(char*));
+    pid_t child_pid = fork();
 
-        for (int i = 0; i < arg_count; i++) {
-            exec_args[i] = malloc((strlen(args[i]) + 1) * sizeof(char));
-            strcpy(exec_args[i], args[i]);
+    if (child_pid == -1) {
+
+        perror("[myshell] Fork Error");
+
+    } else if (child_pid == 0) {
+
+        char** exec_args = calloc(argc + 1, sizeof(char*));
+
+        for (int i = 0; i < argc; i++) {
+            exec_args[i] = malloc((strlen(argv[i]) + 1) * sizeof(char));
+            strcpy(exec_args[i], argv[i]);
         }
 
-        exec_args[arg_count] = NULL;
+        exec_args[argc] = NULL;
 
-        if (execve(args[0], exec_args, environ) == -1) {
-            perror("[myshell] Error executing command");
-            fprintf(stderr, "[myshell] Command had error number %d", errno);
-            for (int i = 0; i < arg_count; i++) {
+        if (execve(argv[0], exec_args, environ) < 0) {
+            perror("[myshell] Exec Error");
+            for (int i = 0; i < argc; i++) {
                 free(exec_args[i]);
             }
             free(exec_args);
             my_exit(errno);
         }
 
-    } else {
+    } else if (!is_background) {
 
-        int wstatus;
-        pid = waitpid(pid, &wstatus, 0);
-        if (pid == -1) {
-            perror("[myshell] Error making child");
+        int status;
+        pid_t wait_pid = waitpid(child_pid, &status, 0);
+
+        if (wait_pid == -1) {
+            perror("[myshell] Wait Error");
         }
 
+        if (WIFSIGNALED(status)) {
+            fprintf(stderr, "[myshell] Child killed: PID=%d signal=%d\n", wait_pid, WTERMSIG(status));
+        } else if (WIFSTOPPED(status)) {
+            fprintf(stderr, "[myshell] Child stopped: PID=%d signal=%d\n", wait_pid, WSTOPSIG(status));
+        }
     }
 }
