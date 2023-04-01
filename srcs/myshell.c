@@ -125,6 +125,17 @@ int main (int argc, char *argv[]) {
             continue;
         }
 
+        // Parsing redirections
+        int result = parse_redirect(arg_count, args);
+        if (result < 0) {
+            continue;
+        } else if (result < arg_count) {
+            for (int i = result; i < arg_count; i++) {
+                args[i] = '\0';
+            }
+            arg_count = result;
+        }
+
         // Parsing globs
         int flags = GLOB_NOCHECK | GLOB_BRACE | GLOB_TILDE;
         glob(args[0], flags, NULL, &glob_buffer);
@@ -135,17 +146,6 @@ int main (int argc, char *argv[]) {
         args[arg_count];
         for (int i = 0; i < arg_count; i++) {
             args[i] = glob_buffer.gl_pathv[i];
-        }
-
-        // Parsing redirections
-        int result = parse_redirect(arg_count, args);
-        if (result < 0) {
-            continue;
-        } else if (result < arg_count) {
-            for (int i = result; i < arg_count; i++) {
-                args[i] = '\0';
-            }
-            arg_count = result;
         }
 
         if (strcmp(args[0], "exit") == 0) {
@@ -237,6 +237,11 @@ int main (int argc, char *argv[]) {
                     fprintf(stderr, "[setenv] Error: Too many arguments.");
                 }
             }
+
+        } else if (strcmp(args[0], "noclobber") == 0) {
+
+            built_in_cmd_message("noclobber");
+            fprintf(stdout, "%d\n", swap_noclobber());
 
         } else if (args[0][0] == '.' || args[0][0] == '/') {
 
