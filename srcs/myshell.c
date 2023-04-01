@@ -22,6 +22,7 @@ A very simple shell program.
 
 #include "cd.h"
 #include "execute_external.h"
+#include "file_redirect.h"
 #include "kill.h"
 #include "list.h"
 #include "path.h"
@@ -36,11 +37,11 @@ const int MAX_ARGS = 16;
 glob_t glob_buffer;
 
 void built_in_cmd_message (const char *name) {
-    fprintf(stdout, "[myshell] Executing built-in '%s' command.\n", name);
+    fprintf(stderr, "[myshell] Executing built-in '%s' command.\n", name);
 }
 
 void not_built_in_cmd_message (const char *name) {
-    fprintf(stdout, "[myshell] Executing external '%s' command.\n", name);
+    fprintf(stderr, "[myshell] Executing external '%s' command.\n", name);
 }
 
 void signal_handler (int signal) {
@@ -100,7 +101,7 @@ int main (int argc, char *argv[]) {
         if (fgets(input, MAX_BUFFER_SIZE, stdin) == NULL) {
             if (ferror(stdin)) {
                 perror("[myshell] Input Error");
-                continue;
+                return -1;
             } else if (feof(stdin)) {
                 clearerr(stdin);
                 fprintf(stdout, "[myshell] Use 'exit' to leave.\n");
@@ -134,6 +135,17 @@ int main (int argc, char *argv[]) {
         args[arg_count];
         for (int i = 0; i < arg_count; i++) {
             args[i] = glob_buffer.gl_pathv[i];
+        }
+
+        // Parsing redirections
+        int result = parse_redirect(arg_count, args);
+        if (result < 0) {
+            continue;
+        } else if (result < arg_count) {
+            for (int i = result; i < arg_count; i++) {
+                args[i] = '\0';
+            }
+            arg_count = result;
         }
 
         if (strcmp(args[0], "exit") == 0) {
@@ -252,5 +264,6 @@ int main (int argc, char *argv[]) {
         }
 
         globfree(&glob_buffer);
+        restore_redirect();
     }
 }

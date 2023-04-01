@@ -5,6 +5,7 @@ ODIR = objs
 
 OBJS += $(ODIR)/cd.o
 OBJS += $(ODIR)/execute_external.o
+OBJS += $(ODIR)/file_redirect.o
 OBJS += $(ODIR)/kill.o
 OBJS += $(ODIR)/linkedlist.o
 OBJS += $(ODIR)/list.o
