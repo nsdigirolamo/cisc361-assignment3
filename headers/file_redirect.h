@@ -13,5 +13,6 @@ Assignment 3 - Simple Shell
 
 int parse_redirect (int argc, char *argv[]);
 void restore_redirect ();
+int swap_noclobber ();
 
 #endif

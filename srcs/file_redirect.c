@@ -17,6 +17,8 @@ Simple parsing for file redirection.
 #include <string.h>
 #include <unistd.h>
 
+bool noclobber = false;
+
 bool changed_stdin = false;
 bool changed_stdout = false;
 bool changed_stderr = false;
@@ -39,8 +41,21 @@ int parse_redirect (int argc, char *argv[]) {
         if (!(in || out || err || append)) { continue; }
 
         if (argc <= i + 1) {
-            fprintf(stderr, "[myshell] Error: No file for redirection.");
+            fprintf(stderr, "[myshell] Error: No file for redirection.\n");
             return -1;
+        }
+
+        char *file = argv[i + 1];
+
+        if (!in && noclobber) {
+            if (!append && access(file, F_OK) == 0) {
+                fprintf(stderr, "[myshell] '%s': File exists.\n", file);
+                return -1;
+            }
+            if (append && access(file, F_OK) == -1) {
+                fprintf(stderr, "[myshell] '%s': No such file or directory.\n", file);
+                return -1;
+            }
         }
 
         int flags = O_CREAT;
@@ -58,7 +73,7 @@ int parse_redirect (int argc, char *argv[]) {
             flags = flags | O_TRUNC;
         }
 
-        int fid = open(argv[i + 1], flags, mode);
+        int fid = open(file, flags, mode);
 
         if (in) {
             close(0);
@@ -111,4 +126,9 @@ void restore_redirect () {
     }
 
     close(fid);
+}
+
+int swap_noclobber () {
+    noclobber = !noclobber;
+    return noclobber;
 }
