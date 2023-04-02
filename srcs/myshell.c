@@ -26,6 +26,7 @@ A very simple shell program.
 #include "kill.h"
 #include "list.h"
 #include "path.h"
+#include "pipe.h"
 #include "printenv.h"
 #include "prompt.h"
 #include "pwd.h"
@@ -35,6 +36,7 @@ A very simple shell program.
 const int MAX_BUFFER_SIZE = 128;
 const int MAX_ARGS = 16;
 glob_t glob_buffer;
+bool is_piped = false;
 
 void built_in_cmd_message (const char *name) {
     fprintf(stderr, "[myshell] Executing built-in '%s' command.\n", name);
@@ -61,7 +63,7 @@ void zombie_cleanup() {
 
     if (wait_pid != 0) {
         if (WIFEXITED(status)) {
-        fprintf(stderr, "[myshell] Child exited normally: PID=%d status=%d\n", wait_pid, WEXITSTATUS(status));
+            fprintf(stderr, "[myshell] Child exited normally: PID=%d status=%d\n", wait_pid, WEXITSTATUS(status));
         } else if (WIFSIGNALED(status)) {
             fprintf(stderr, "[myshell] Child killed: PID=%d signal=%d\n", wait_pid, WTERMSIG(status));
         } else if (WIFSTOPPED(status)) {
@@ -71,7 +73,7 @@ void zombie_cleanup() {
 }
 
 void my_exit(int retval) {
-    built_in_cmd_message("exit");
+    if (!is_piped) { built_in_cmd_message("exit"); }
     globfree(&glob_buffer);
     cd_cleanup();
     prompt_cleanup();
@@ -126,14 +128,35 @@ int main (int argc, char *argv[]) {
         }
 
         // Parsing redirections
-        int result = parse_redirect(arg_count, args);
-        if (result < 0) {
+        int redirect = parse_redirect(arg_count, args);
+        if (redirect < 0) {
             continue;
-        } else if (result < arg_count) {
-            for (int i = result; i < arg_count; i++) {
+        } else if (redirect < arg_count) {
+            for (int i = redirect; i < arg_count; i++) {
                 args[i] = '\0';
             }
-            arg_count = result;
+            arg_count = redirect;
+        }
+
+        // Parsing pipes
+        int pipe = parse_pipe(arg_count, args);
+        if (abs(pipe) == arg_count) {
+            continue;
+        } else if (abs(pipe) < arg_count && pipe != 0) {
+            is_piped = true;
+            if (pipe < 0) {
+                pipe = -1 * pipe;
+                for (int i = pipe; i < arg_count; i++) { args[i] = '\0'; }
+                arg_count = pipe;
+            } else {
+                int count = 0;
+                for (int i = pipe + 1; i < arg_count; i++) {
+                    args[count] = args[i];
+                    count++;
+                }
+                for (int i = count; i < arg_count; i++) { args[i] = '\0'; }
+                arg_count = count;
+            }
         }
 
         // Parsing globs
@@ -270,5 +293,7 @@ int main (int argc, char *argv[]) {
 
         globfree(&glob_buffer);
         restore_redirect();
+
+        if (is_piped) { my_exit(0); }
     }
 }
