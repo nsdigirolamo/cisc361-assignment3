@@ -11,6 +11,7 @@ OBJS += $(ODIR)/linkedlist.o
 OBJS += $(ODIR)/list.o
 OBJS += $(ODIR)/myshell.o
 OBJS += $(ODIR)/path.o
+OBJS += $(ODIR)/pipe.o
 OBJS += $(ODIR)/printenv.o
 OBJS += $(ODIR)/prompt.o
 OBJS += $(ODIR)/pwd.o
