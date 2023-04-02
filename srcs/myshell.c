@@ -12,6 +12,7 @@ A very simple shell program.
 
 #include <errno.h>
 #include <glob.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -31,12 +32,16 @@ A very simple shell program.
 #include "prompt.h"
 #include "pwd.h"
 #include "setenv.h"
+#include "watchuser.h"
 #include "which.h"
 
 const int MAX_BUFFER_SIZE = 128;
 const int MAX_ARGS = 16;
+
 glob_t glob_buffer;
 bool is_piped = false;
+pthread_t watchuser_thread_id;
+bool watching_users = false;
 
 void built_in_cmd_message (const char *name) {
     fprintf(stderr, "[myshell] Executing built-in '%s' command.\n", name);
@@ -77,6 +82,9 @@ void my_exit(int retval) {
     globfree(&glob_buffer);
     cd_cleanup();
     prompt_cleanup();
+    watchuser_cleanup();
+    pthread_cancel(watchuser_thread_id);
+    pthread_join(watchuser_thread_id, NULL);
     exit(retval);
 }
 
@@ -169,6 +177,12 @@ int main (int argc, char *argv[]) {
         args[arg_count];
         for (int i = 0; i < arg_count; i++) {
             args[i] = glob_buffer.gl_pathv[i];
+        }
+
+        // Debugging Arguments
+        fprintf(stderr, "[DEBUG] %d Arguments in List:\n", arg_count);
+        for (int i = 0; i < arg_count; i++) {
+            fprintf(stderr, "[DEBUG] args[%d] : %s\n", i, args[i]);
         }
 
         if (strcmp(args[0], "exit") == 0) {
@@ -266,6 +280,31 @@ int main (int argc, char *argv[]) {
             built_in_cmd_message("noclobber");
             fprintf(stdout, "%d\n", swap_noclobber());
 
+        } else if (strcmp(args[0], "watchuser") == 0) {
+
+            built_in_cmd_message("watchuser");
+
+            if (arg_count == 2) {
+
+                if (!watching_users) {
+                    fprintf(stderr, "[DEBUG] Not yet watching users. Starting thread...\n");
+                    pthread_create(&watchuser_thread_id, NULL, *watchusers, NULL);
+                    watching_users = true;
+                }
+                fprintf(stderr, "[DEBUG] Adding watched user '%s'\n", args[1]);
+                addwatcheduser(args[1]);
+
+            } else if (strcmp(args[2], "off") == 0) {
+
+                fprintf(stderr, "[DEBUG] Removing watched user '%s'\n", args[1]);
+                removewatcheduser(args[1]);
+
+            } else {
+
+                fprintf(stderr, "[watchuser] Invalid arguments.\n");
+
+            }
+        
         } else if (args[0][0] == '.' || args[0][0] == '/') {
 
             if (access(args[0], X_OK) == 0) {
