@@ -16,6 +16,7 @@ OBJS += $(ODIR)/printenv.o
 OBJS += $(ODIR)/prompt.o
 OBJS += $(ODIR)/pwd.o
 OBJS += $(ODIR)/setenv.o
+OBJS += $(ODIR)/watchuser.o
 OBJS += $(ODIR)/which.o
 
 CFLAGS = -g -I $(IDIR)
