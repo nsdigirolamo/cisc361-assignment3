@@ -10,10 +10,10 @@ Utilities for a linked list.
 
 */
 
-#include "linkedlist.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "linkedlist.h"
 
 void print_list (list_element *head) {
     while (head) {

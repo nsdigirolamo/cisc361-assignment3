@@ -14,8 +14,6 @@ A simple pwd command.
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "pwd.h"
-
 void pwd () {
 
     char *ptr = getcwd(NULL, 0);

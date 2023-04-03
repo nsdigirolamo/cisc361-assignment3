@@ -179,11 +179,13 @@ int main (int argc, char *argv[]) {
             args[i] = glob_buffer.gl_pathv[i];
         }
 
+        /*
         // Debugging Arguments
         fprintf(stderr, "[DEBUG] %d Arguments in List:\n", arg_count);
         for (int i = 0; i < arg_count; i++) {
             fprintf(stderr, "[DEBUG] args[%d] : %s\n", i, args[i]);
         }
+        */
 
         if (strcmp(args[0], "exit") == 0) {
 
@@ -287,16 +289,13 @@ int main (int argc, char *argv[]) {
             if (arg_count == 2) {
 
                 if (!watching_users) {
-                    fprintf(stderr, "[DEBUG] Not yet watching users. Starting thread...\n");
                     pthread_create(&watchuser_thread_id, NULL, *watchusers, NULL);
                     watching_users = true;
                 }
-                fprintf(stderr, "[DEBUG] Adding watched user '%s'\n", args[1]);
                 addwatcheduser(args[1]);
 
-            } else if (strcmp(args[2], "off") == 0) {
+            } else if (arg_count == 3 && strcmp(args[2], "off") == 0) {
 
-                fprintf(stderr, "[DEBUG] Removing watched user '%s'\n", args[1]);
                 removewatcheduser(args[1]);
 
             } else {

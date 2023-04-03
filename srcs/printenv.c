@@ -19,8 +19,6 @@ E2BIG - Too many arguments.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "printenv.h"
-
 extern char **environ;
 
 int printenv (int argc, char *argv[]) {

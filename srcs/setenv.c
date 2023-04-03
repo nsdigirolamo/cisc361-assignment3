@@ -20,10 +20,7 @@ E2BIG - Too many arguments.
 #include <stdlib.h>
 #include <string.h>
 
-#include "linkedlist.h"
-#include "path.h"
 #include "printenv.h"
-#include "setenv.h"
 
 int my_setenv (int argc, char *argv[]) {
 

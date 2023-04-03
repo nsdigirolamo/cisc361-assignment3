@@ -20,8 +20,6 @@ change to the last visited directory. On success returns 0. On failure returns
 #include <string.h>
 #include <unistd.h>
 
-#include "cd.h"
-
 char *previous_dir = NULL;
 
 int cd (int argc, char *argv[]) {

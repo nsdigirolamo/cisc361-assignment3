@@ -14,8 +14,6 @@ A simple list command.
 #include <stdio.h>
 #include <sys/types.h>
 
-#include "list.h"
-
 void list (int argc, char *argv[]) {
 
     DIR *dir;

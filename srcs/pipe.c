@@ -18,8 +18,6 @@ Simple parsing for pipes.
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <myshell.h>
-
 extern char **environ;
 
  /*

@@ -15,8 +15,6 @@ A simple kill command.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "kill.h"
-
 void my_kill (char *args[], int arg_count) {
 
     if (arg_count < 2) {

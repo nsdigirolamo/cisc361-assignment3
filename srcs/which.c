@@ -23,7 +23,6 @@ ENOENT - None of the commands were found on the PATH.
 #include <unistd.h>
 
 #include "path.h"
-#include "which.h"
 
 list_element *which (int argc, char *argv[], bool show_all) {
 
