@@ -79,7 +79,6 @@ int parse_redirect (int argc, char *argv[]) {
             close(0);
             dup(fid);
             changed_stdin = true;
-            fprintf(stderr, "\nflag1\n");
         } 
         
         if (out) {
@@ -110,7 +109,6 @@ void restore_redirect () {
         close(0);
         dup(fid);
         changed_stdin = false;
-        fprintf(stderr, "\nflag2\n");
     }
 
     if (changed_stdout) {

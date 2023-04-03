@@ -83,8 +83,10 @@ void my_exit(int retval) {
     cd_cleanup();
     prompt_cleanup();
     watchuser_cleanup();
-    pthread_cancel(watchuser_thread_id);
-    pthread_join(watchuser_thread_id, NULL);
+    if (watching_users) { 
+        pthread_cancel(watchuser_thread_id);
+        pthread_join(watchuser_thread_id, NULL); 
+    }
     exit(retval);
 }
 
